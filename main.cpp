@@ -1,5 +1,6 @@
-#include <windows.h>
-#include "game.h"
+﻿#include <windows.h>
+#include <tchar.h>
+#include "GameSystem.h"
 
 /* This is where all the input to the window goes to */
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
@@ -19,6 +20,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 		
 		/* Upon destruction, tell the main thread to stop */
 		case WM_DESTROY: {
+			gameDeinit();
 			PostQuitMessage(0);
 			break;
 		}
@@ -32,6 +34,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 
 /* The 'main' function of Win32 GUI programs: this is where execution starts */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(nCmdShow);
+	gameInit();
+
 	WNDCLASSEX wc; /* A properties struct of our window */
 	HWND hwnd; /* A 'HANDLE', hence the H, or a pointer to our window */
 	MSG msg; /* A temporary location for all messages */
@@ -43,26 +50,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wc.hInstance	 = hInstance;
 	wc.hCursor		 = LoadCursor(NULL, IDC_ARROW);
 	
-	/* White, COLOR_WINDOW is just a #define for a system color, try Ctrl+Clicking it */
+	/* White, COLOR_WINDOW is just a #define for a system Color, try Ctrl+Clicking it */
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-	wc.lpszClassName = "WindowClass";
+	wc.lpszClassName = _T("WindowClass");
 	wc.hIcon		 = LoadIcon(NULL, IDI_APPLICATION); /* Load a standard icon */
 	wc.hIconSm		 = LoadIcon(NULL, IDI_APPLICATION); /* use the name "A" to use the project icon */
 
 	if(!RegisterClassEx(&wc)) {
-		MessageBox(NULL, "Window Registration Failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		MessageBox(NULL, _T("Window Registration Failed!"), _T("Error!"), MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 
-	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClass","Tetris",WS_VISIBLE|WS_OVERLAPPEDWINDOW,
+	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, _T("WindowClass"), _T("Tetris"),
+		WS_VISIBLE | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, /* window style */
 		CW_USEDEFAULT, /* x */
 		CW_USEDEFAULT, /* y */
-		640, /* width */
-		480, /* height */
+		eWindowWidth, /* width */
+		eWindowHeight, /* height */
 		NULL,NULL,hInstance,NULL);
 
 	if(hwnd == NULL) {
-		MessageBox(NULL, "Window Creation Failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		MessageBox(NULL, _T("Window Creation Failed!"), _T("Error!"), MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 
@@ -71,11 +79,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		sent to WndProc. Note that GetMessage blocks code flow until it receives something, so
 		this loop will not produce unreasonably high CPU usage
 	*/
-	gameInit();
 	SetTimer(hwnd, 30, 1000 / 30, NULL);
 	while(GetMessage(&msg, NULL, 0, 0) > 0) { /* If no error is received... */
 		TranslateMessage(&msg); /* Translate key codes to chars if present */
 		DispatchMessage(&msg); /* Send it to WndProc */
 	} 
-	return msg.wParam;
+	return (int)msg.wParam;
 }
