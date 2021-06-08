@@ -1,17 +1,17 @@
-Button operations:
+# Button operations:
 Left, Right, Down. Move the block with correspond direction.
 Space. Rotete the block clockwise.
 
-Score depend on number of line cleared:
+# Score depend on number of line cleared:
 One line is 100 points.
 Two lines are 200 points.
 Three lines are 600 points.
 Four lines are 1200 points.
 
-Build Environment:
+# Build Environment:
 Visual studio 2019.
 
-Concepts:
+# Concepts:
 Divide the system into three parts.
 
 Model is responsible for logical operation of game.
